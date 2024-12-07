@@ -94,7 +94,7 @@ Before going more in depth into XDP we need to understand some basics about how 
 
 
 
-This headers contain important information about the incoming frame such us source ip , destination ip. One of the common use cases of XDP program is parsing the headers of the incoming frames and make decision based on their headers.
+This headers contain important information about the incoming frame such us source ip , destination ip. One of the common use cases of XDP program is to parese the headers of the incoming frames and to make decision based on their headers.
 
 ### UDP Firewall
 
@@ -111,13 +111,12 @@ Are arrays that contain the starting adress of the frame and the endign adress o
 Functions such as **parse_ethhdr** or **parse_iphdr**, will motify the pointer to the next header , and will also return a struct with the header. You can acces that struct to get extra information.
 
 ### Hands On
-
-Load into the kernel the xdp-parse.bpf.c for that compile it using clang and load it with the iproute2 utility. For any compilation problem regarding linux headers check the **Problems** section.
+Take a look at the source code after that load into the kernel the xdp-parse.bpf.c for that compile it using clang and load it with the iproute2 utility. For any compilation problem regarding linux headers check the **Problems** section.
 ```
 clang -O2 -target bpf -c xdp-parse.bpf.c -o xdp-parse.bpf.o
 sudo ip link set dev lo xdpgeneric obj xdp-parse.bpf.o sec xdp
 ```
-The provided **udp_client.c** and **udp_server.c** can be used to generate and receive udp frames using the localhost interface and the port 1000. As you can see the client is sending UDP frames but the server is not able to receive them.
+The provided **udp_client.c** and **udp_server.c** can be used to generate and receive udp frames using the localhost interface and the port 1000. As you can see  when the xdp program is loaded the client is sending UDP frames, but the server is not able to receive them.
 
 Please modify the **xdp-parse.bpf.c** so UDP frames going to the port 1000 are not dropped , the rest of UDP frames should still be dropped. 
 
@@ -125,7 +124,7 @@ Please modify the **xdp-parse.bpf.c** so UDP frames going to the port 1000 are n
 
 ## ebpf Maps
 
-Some of you might have already realised that we can not store any iformation between the execution of different programs. For example what happens if I want to count how many frames I have received or what if I want to communicate with a userspace process.
+Some of you might have already realised that we can not store any iformation between the execution of different programs. For example what happens if I want to count how many frames I have received?  or What if I want to communicate with a userspace process?.
 
 The answer to this question are ebpf maps. They are a shared memory areas between the kernel space and the user space that allow ebpf programs to store persistent information.
 
@@ -145,7 +144,10 @@ struct {
 
 Accesing the values of the map can be done both from a userspace application using libbpf or by a ebpf aplication. Examples can be found on **xdp-counter-example.c** and  **xdp-counter-example-bpf.c** . For this assigment we will be using our own custom loader instead of the iproute2 utility. This way we have more controll of what we load into the kernel and we have an easy acces to the maps. 
 
-Lets take a look at the loader:
+
+First lets take a look at the **xdp-counter-example-bpf.c**. As you can see is a really simple porgram it just updates the counter when a frame is received. The map is shared by multiple process so we have to acces it under mutual exclusion , that is why we are using a spinlock. 
+
+Now lets take a look at the loader **xdp-counter-example.c** , this program will first load the XDP program and after that will pull the map and print the number of incoming packets:
 
 We first need to get the id of the network interface where we want to load the XDP program:
 
