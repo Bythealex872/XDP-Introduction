@@ -13,7 +13,7 @@ struct {
         __type(key, __u32);
         __type(value, struct datarec);
         __uint(max_entries, 1000);
-} xdp_counter SEC(".maps");
+}xdp_counter SEC(".maps");
 
 
 SEC("xdp")

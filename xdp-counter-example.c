@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
         printf("get ifindex from interface name failed\n");
         return 1;
     }
-    char *filename = "a.o";
+    char *filename = "xdp-counter.bpf.o";
     char *progname = "count";
 
     DECLARE_LIBBPF_OPTS(bpf_object_open_opts, opts);
@@ -84,27 +84,22 @@ int main(int argc, char *argv[])
         return 1;
         }
     printf("XDP-PROGRAM LOADED\n");
-    /* Find the map fd from the bpf object */
+
     bpf_obj = xdp_program__bpf_obj(prog);
     map_fd = bpf_object__find_map_fd_by_name(bpf_obj, "xdp_counter");
     if (map_fd < 0) {
         printf("Error, get map fd from bpf obj failed\n");
         return map_fd;
     }
-
-    map_fd_time = bpf_object__find_map_fd_by_name(bpf_obj, "xdp_time");
-    if (map_fd_time < 0) {
-        printf("Error, get map fd from bpf obj failed\n");
-        return map_fd_time;
-    }
     
-
+    /*
     __u32 key = 0;
     __u64 value = 0;
     if (bpf_map_update_elem(map_fd, &key, &value, BPF_ANY) != 0) {
         fprintf(stderr, "Error, failed to set map counter value to 0\n");
         return 1;
     }
+    */
 
     poll_stats(map_fd,map_fd_time, 2);
 
