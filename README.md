@@ -6,7 +6,7 @@ XDP Hands On - Sistemas Empotrados II
 Before starting please install the following dependencies that are needed for compiling XDP programs:
 
 ```
-sudo apt install clang llvm libelf-dev libpcap-dev build-essential
+sudo apt install clang llvm libelf-dev libbpf-dev libpcap-dev build-essential
 sudo apt install linux-headers-$(uname -r)
 
 ```
